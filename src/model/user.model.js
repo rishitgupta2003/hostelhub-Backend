@@ -34,10 +34,16 @@ const userSchema = new Schema(
         },
         refreshToken: {
             type: String
+        },
+        hostel_name: {
+            type: String,
+            enum: ["NekChand/Zakir", "SUKHNA", "TAGORE", "GGS/NorthCampus"];
+            default: "NekChand/Zakir"
         }
 
     },
+    
     {timestamps: true}
 )
 
-const User = model("User",userSchema);
+export const User = model("User",userSchema);
