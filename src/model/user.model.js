@@ -34,7 +34,7 @@ const userSchema = new Schema(
         },
         password: {
             type: String,
-            required: true
+            required: [true,  "Password Required"]
         },
         phoneNum: {
             type: String,
