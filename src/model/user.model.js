@@ -37,7 +37,7 @@ const userSchema = new Schema(
         },
         hostel_name: {
             type: String,
-            enum: ["NekChand/Zakir", "SUKHNA", "TAGORE", "GGS/NorthCampus"];
+            enum: ["NekChand/Zakir", "SUKHNA", "TAGORE", "GGS/NorthCampus"],
             default: "NekChand/Zakir"
         }
 
