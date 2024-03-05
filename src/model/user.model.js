@@ -29,6 +29,10 @@ const userSchema = new Schema(
             type: String,
             required: true
         },
+        phoneNum: {
+            type: String,
+            required: true
+        },
         avatar: {
             type: String, //linkOfAvatar
         },
