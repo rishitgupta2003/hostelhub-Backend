@@ -9,9 +9,10 @@ cloudinary.config({
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if(!localFilePath) return null;
+        //upload file on cloudinary
         cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto"
-        }); //upload file on cloudinary
+        });
     } catch (error) {
         
     }
