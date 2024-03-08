@@ -23,10 +23,9 @@ const app = express();
 
 //routes import
 
-import userRouter from "./routes/user.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 //routes declaration
-app.use("/api/v1/users", userRouter);
-
+app.use("/api/v1/users", userRoutes);
 
 export { app };
