@@ -40,7 +40,7 @@ const userSchema = new Schema(
             required: [true,  "Password Required"]
         },
         phoneNum: {
-            type: String,
+            type: Number,
             required: true
         },
         avatar: {
