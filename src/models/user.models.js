@@ -45,6 +45,7 @@ const userSchema = new Schema(
         },
         avatar: {
             type: String, //linkOfAvatar
+            default: "https://res.cloudinary.com/don5euayf/image/upload/default%20avatar.jpg"
         },
         refreshToken: {
             type: String
