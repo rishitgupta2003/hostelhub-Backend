@@ -1,6 +1,6 @@
-import zod, { object } from "zod";
+import zod from "zod";
 
-const userAuth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel) => {
+const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel) => {
     const name = zod.string().min(1);
     const password = zod.string().min(8);
     const username = zod.string().min(5);
@@ -20,3 +20,6 @@ const userAuth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel) => 
         && email.safeParse(Email).success && phoneNumber.safeParse(PhoneNum).success && hostel.safeParse(Hostel).success;
 
 }
+
+
+export default { userAdd_Auth };
