@@ -18,14 +18,14 @@ const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel,
 
 
     return { data: `${[
-        "Name -> " +name.safeParse(Name).success ,
-        "Password ->" +password.safeParse(Password).success ,
-        "Username ->" +username.safeParse(Username).success ,
-        "Gender ->" +gender.safeParse(Gender).success ,
-        "Email ->" +email.safeParse(Email).success ,
-        "Phone Number ->" +phoneNumber.safeParse(PhoneNum).success ,
-        "Hostel ->" +hostel.safeParse(Hostel).success ,
-        "UID ->" +uid.safeParse(UID).success
+        "Name -> " + " " +name.safeParse(Name).success ,
+        "Password ->" + " " +password.safeParse(Password).success ,
+        "Username ->" + " " +username.safeParse(Username).success ,
+        "Gender ->" + " " +gender.safeParse(Gender).success ,
+        "Email ->" + " " +email.safeParse(Email).success ,
+        "Phone Number ->" + " " +phoneNumber.safeParse(PhoneNum).success ,
+        "Hostel ->" + " " +hostel.safeParse(Hostel).success ,
+        "UID ->" + " " +uid.safeParse(UID).success
     ]}`
     ,
     "success" : name.safeParse(Name).success && password.safeParse(Password).success && username.safeParse(Username).success && gender.safeParse(Gender).success 
