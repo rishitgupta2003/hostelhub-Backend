@@ -6,14 +6,8 @@ const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel,
     const username = zod.string().min(5);
     const gender = zod.enum(["MALE","FEMALE","OTHER","RATHER NOT SAY"]);
     
-    const email = zod.string().email().refine(
-        (val) => {
-            val.endsWith("@cuchd.in");
-        },
-        {
-            "message" : "INVALID FORMAT"
-        }
-    );
+    const email = zod.string().email().refine((val) => val.endsWith("@cuchd.in"));
+
     
     const phoneNumber = zod.string().max(10);
     const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE"]);
