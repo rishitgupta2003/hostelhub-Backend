@@ -17,13 +17,14 @@ const registerUser = asyncHandler(
         const {username, name, email, password, uid, gender, phoneNum, hostel_name} = req.body;
         const isValidated = userAdd_Auth(username, name, password, gender, email, phoneNum, hostel_name, uid);
     
-        if(!isValidated){
+        if(!isValidated.success){
             return res.status(400).json({
-                "msg" : "INVALID FORMATS"
+                "msg" : "INVALID FORMATS",
+                "validate" : isValidated.data
             });
         }
 
-        const doExist = User.findOne({email: email});
+        const doExist = await User.findOne({email: email});
 
         if(doExist){
             return res.status(500).json({
