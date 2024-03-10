@@ -54,7 +54,7 @@ const registerUser = asyncHandler(
         )
 
         if(!createdUser){
-            throw new ApiError(500, "Something Went Wrong while Uploading");
+            throw new ApiError(500, "Something Went Wrong while Registering");
         }
 
         return res.status(201).json(
