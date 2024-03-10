@@ -2,7 +2,7 @@ import { User } from "../models/user.models.js";
 import { ApiError } from "../util/ApiError.js";
 import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
-import userAdd_Auth from "../util/authSchema.js";
+import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 
 const registerUser = asyncHandler(
@@ -70,4 +70,43 @@ const registerUser = asyncHandler(
     }
 )
 
-export { registerUser }
+const loginUser = asyncHandler(
+    async(req, res) => {
+        //collect details from frontend -> username or email / password
+        //validate details -> zod
+        //find user
+        //password bcrypt check
+        //access token generate
+        //send cookies
+        
+        /*
+            @param {String}
+            @return {Boolean}
+        */
+
+        const {username_email, password} = req.body;
+
+        const validateLogin = userLogin_Auth(username_email, password);
+
+        if(!validateLogin.success) throw new ApiError(404, `Fill with correct Formats -> ${validateLogin.data}`);
+
+        
+        const findUser = await User.findOne(
+            {
+                $or: [
+                    {username : username_email},
+                    {email : username_email}
+                ]
+            }
+        );
+
+        if(!findUser) throw new ApiError(404, "User Doesn't Exist");
+
+        return res.status(201).json(
+            new ApiResponse(200, "Proceed Further")
+        );
+
+    }
+)
+
+export { registerUser, loginUser }
