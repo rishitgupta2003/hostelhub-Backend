@@ -1,6 +1,10 @@
+import { upload } from "../middlewares/multer.middlewares.js";
 import { User } from "../models/user.models.js";
+import { ApiError } from "../util/ApiError.js";
+import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import userAdd_Auth from "../util/authSchema.js";
+import { uploadOnCloudinary } from "../util/cloudinary.js";
 
 const registerUser = asyncHandler(
     async (req, res) => {
@@ -18,27 +22,45 @@ const registerUser = asyncHandler(
         const isValidated = userAdd_Auth(username, name, password, gender, email, phoneNum, hostel_name, uid);
     
         if(!isValidated.success){
-            return res.status(400).json({
-                "msg" : "INVALID FORMATS",
-                "validate" : isValidated.data
-            });
+            throw new ApiError(400, "Fill It with Right Formats");
         }
 
-        const doExist = await User.findOne({email: email});
-
-        if(doExist){
-            return res.status(500).json({
-                "msg" : "User Already Exists"
-            });
-        }
-
-        res.json(
+        const usernameExist = await User.findOne(
             {
-                name: name,
-                username: username,
-                email: email
+                $or : [{username}, {email}]
             }
         );
+
+        if(usernameExist) throw new ApiError(409, "Username / Email Alredy being used");
+
+        const avatarLocalPath = req.files?.avatar[0]?.path;
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+        const userObj = await User.create(
+            {
+                username : username.toLowerCase(),
+                name,
+                uid,
+                gender,
+                email,
+                password,
+                phoneNum,
+                avatar : avatar?.url,
+                hostel_name: hostel_name,
+            }
+        )
+        
+        const createdUser = await User.findById(userObj._id).select(
+            "-password -refreshToken"
+        )
+
+        if(!createdUser){
+            throw new ApiError(500, "Something Went Wrong while Uploading");
+        }
+
+        return res.status(201).json(
+            new ApiResponse(200, createdUser , "User Registered Successfully")
+        )
     }
 )
 
