@@ -13,24 +13,28 @@ const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel,
     const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE"]);
     const uid = zod.string();
 
-
-
-
+    const nameParse = name.safeParse(Name).success;
+    const passParse = password.safeParse(Password).success;
+    const userParse = username.safeParse(Username).success;
+    const genderParse = gender.safeParse(Gender).success;
+    const emailParse = email.safeParse(Email).success;
+    const phoneNumParse = phoneNumber.safeParse(PhoneNum).success;
+    const hostelParse = hostel.safeParse(Hostel).success;
+    const uidParse = uid.safeParse(UID).success;
 
     return { 
         data: `${[
-            "Name -> " + " " + name.safeParse(Name).success ,
-            "Password ->" + " " + password.safeParse(Password).success ,
-            "Username ->" + " " + username.safeParse(Username).success ,
-            "Gender ->" + " " + gender.safeParse(Gender).success ,
-            "Email ->" + " " + email.safeParse(Email).success ,
-            "Phone Number ->" + " " + phoneNumber.safeParse(PhoneNum).success ,
-            "Hostel ->" + " " + hostel.safeParse(Hostel).success ,
-            "UID ->" + " " + uid.safeParse(UID).success
+            "Name -> " + " " +  nameParse,
+            "Password ->" + " " +  passParse,
+            "Username ->" + " " +  userParse,
+            "Gender ->" + " " +  genderParse,
+            "Email ->" + " " +  emailParse,
+            "Phone Number ->" + " " +  phoneNumParse,
+            "Hostel ->" + " " +  hostelParse,
+            "UID ->" + " " + uidParse
         ]}`
     ,
-        "success" : name.safeParse(Name).success && password.safeParse(Password).success && username.safeParse(Username).success && gender.safeParse(Gender).success 
-        && email.safeParse(Email).success && phoneNumber.safeParse(PhoneNum).success && hostel.safeParse(Hostel).success && uid.safeParse(UID).success
+        "success" : nameParse && passParse && userParse && genderParse && emailParse && phoneNumParse && hostelParse && uidParse
     
     };
 

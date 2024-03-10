@@ -5,6 +5,25 @@ import { asyncHandler } from "../util/asyncHandler.js";
 import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 
+async function generateAccessAndRefreshToken(userID){
+    try{
+        const user = User.findById(userID).select("-password");
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({validateBeforeSave: false});
+
+        return {
+            accessToken,
+            refreshToken
+        }
+
+    }catch(err){
+        throw new ApiError(500, "Error while Generating")
+    }
+}
+
 const registerUser = asyncHandler(
     async (req, res) => {
         //get user details
@@ -78,11 +97,7 @@ const loginUser = asyncHandler(
         //password bcrypt check
         //access token generate
         //send cookies
-        
-        /*
-            @param {String}
-            @return {Boolean}
-        */
+
 
         const {username_email, password} = req.body;
 
@@ -91,20 +106,42 @@ const loginUser = asyncHandler(
         if(!validateLogin.success) throw new ApiError(404, `Fill with correct Formats -> ${validateLogin.data}`);
 
         
-        const findUser = await User.findOne(
+        let user = await User.findOne(
             {
                 $or: [
                     {username : username_email},
                     {email : username_email}
                 ]
             }
+        ).select(
+            "-password -refreshToken"
         );
 
-        if(!findUser) throw new ApiError(404, "User Doesn't Exist");
+        if(!user) throw new ApiError(404, "User Doesn't Exist");
+        
+        const passCheck = await user.isPasswordCorrect(password);
 
-        return res.status(201).json(
-            new ApiResponse(200, "Proceed Further")
-        );
+        if(!passCheck) throw new ApiError(401, "Invalid Credentials");
+
+        const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id);
+
+        user = await User.findById(user._id).select("-password -refreshToken");
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        return res.status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    user,
+                    "User Logged In"
+                )
+            );        
 
     }
 )
