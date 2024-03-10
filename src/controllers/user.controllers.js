@@ -32,7 +32,12 @@ const registerUser = asyncHandler(
 
         if(usernameExist) throw new ApiError(409, "Username / Email Alredy being used");
 
-        const avatarLocalPath = req.files?.avatar[0]?.path;
+        let avatarLocalPath;
+
+        if(req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0){
+            avatarLocalPath = req.files.avatar[0].path;
+        }
+
         console.log(avatarLocalPath);
         const avatar = await uploadOnCloudinary(avatarLocalPath);
         console.log(avatar);
@@ -46,7 +51,7 @@ const registerUser = asyncHandler(
                 email,
                 password,
                 phoneNum,
-                avatar : avatar?.url || "",
+                avatar : avatar?.url,
                 hostel_name: hostel_name,
             }
         )
