@@ -147,4 +147,11 @@ const loginUser = asyncHandler(
     }
 )
 
-export { registerUser, loginUser }
+const logoutUser = asyncHandler(
+    async (req, res) => {
+        //cookies clear
+        
+    }
+)
+
+export { registerUser, loginUser, logoutUser }
