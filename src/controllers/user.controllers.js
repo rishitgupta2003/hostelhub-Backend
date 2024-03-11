@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../util/cloudinary.js";
 
 async function generateAccessAndRefreshToken(userID){
     try{
+
         const user = User.findById(userID).select("-password");
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
@@ -20,7 +21,7 @@ async function generateAccessAndRefreshToken(userID){
         }
 
     }catch(err){
-        throw new ApiError(500, "Error while Generating")
+        throw new ApiError(500, err.message);
     }
 }
 
@@ -106,7 +107,7 @@ const loginUser = asyncHandler(
         if(!validateLogin.success) throw new ApiError(404, `Fill with correct Formats -> ${validateLogin.data}`);
 
         
-        let user = await User.findOne(
+        const user = await User.findOne(
             {
                 $or: [
                     {username : username_email},
@@ -114,18 +115,18 @@ const loginUser = asyncHandler(
                 ]
             }
         ).select(
-            "-password -refreshToken"
+            "-refreshToken"
         );
 
         if(!user) throw new ApiError(404, "User Doesn't Exist");
         
-        const passCheck = await user.isPasswordCorrect(password);
-
+        const passCheck = user.isPasswordCorrect(password);
+        console.log(passCheck);
         if(!passCheck) throw new ApiError(401, "Invalid Credentials");
 
         const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id);
 
-        user = await User.findById(user._id).select("-password -refreshToken");
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
         const options = {
             httpOnly: true,
@@ -138,7 +139,7 @@ const loginUser = asyncHandler(
             .json(
                 new ApiResponse(
                     200,
-                    user,
+                    loggedInUser,
                     "User Logged In"
                 )
             );        
