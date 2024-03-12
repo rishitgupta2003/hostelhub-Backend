@@ -41,7 +41,7 @@ const registerUser = asyncHandler(
         const isValidated = userAdd_Auth(username, name, password, gender, email, phoneNum, hostel_name, uid);
     
         if(!isValidated.success){
-            throw new ApiError(400, "Fill It with Right Formats");
+            throw new ApiError(400, `Fill It with Right Formats -> ${isValidated.data}`);
         }
 
         const usernameExist = await User.findOne(

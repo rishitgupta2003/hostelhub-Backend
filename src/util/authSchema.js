@@ -6,7 +6,7 @@ const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel,
     const username = zod.string().min(5);
     const gender = zod.enum(["MALE","FEMALE","OTHER","RATHER NOT SAY"]);
     
-    const email = zod.string().email().refine((val) => val.endsWith("@cuchd.in"));
+    const email = zod.string().email().refine((val) => val.endsWith('@cuchd.in') || val.endsWith('@cumail.in'));
 
     
     const phoneNumber = zod.string().max(10);
@@ -44,7 +44,7 @@ const userLogin_Auth = (Username_Email, Password) => {
     const password = zod.string().min(8);
     const username = zod.string().min(5);
 
-    const email = zod.string().email().refine((val) => val.endsWith("@cuchd.in"));
+    const email = zod.string().email().refine((val) => val.endsWith('@cuchd.in') || val.endsWith('@cumail.in'));
 
     const passParse = password.safeParse(Password).success;
     const userParse = username.safeParse(Username_Email).success;
