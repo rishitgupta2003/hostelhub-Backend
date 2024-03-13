@@ -178,28 +178,36 @@ const refreshAccessToken = asyncHandler(
             const user = await User.findById(decodedToken?._id).select("-password");
     
             if(!user) throw new ApiError(401, "Invalid Refresh Token");
-    
+            console.log(user);
             if(incomingRefreshToken !== user.refreshToken) throw new ApiError(401, "Refresh Token Expired");
             
-            const {accessToken, newRefreshToken} = generateAccessAndRefreshToken(user?._id);
-    
+            // const { accessToken, newRefreshToken };
+            const tok = await generateAccessAndRefreshToken(user?._id);
+            console.log(tok.refreshToken);
+            
             const options = {
                 httpOnly: true,
                 secure: true
-            }
+            };
+
+
+            res.clearCookie("accessToken", options).clearCookie("refreshToken", options);
+
+            user.refreshToken = tok.refreshToken;
+            await user.save({validateBeforeSave: false});
     
             return res.status(200)
-                .cookie("acceessToken", accessToken, options)
-                .cookie("refreshToken", newRefreshToken, options)
+                .cookie("accessToken", tok.accessToken, options)
+                .cookie("refreshToken", tok.refreshToken, options)
                 .json(
                     new ApiResponse(
                         200,
-                        {accessToken, "Refresh Token": newRefreshToken},
+                        {"Refresh Token": tok.refreshToken},
                         "User Access Renewed"
                     )
                 );
         } catch (error) {
-            throw new ApiError(401, "Server Error");
+            throw new ApiError(401, `Server Error ->  ${error.message}`);
         }
     }
 )
