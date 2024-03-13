@@ -181,10 +181,8 @@ const refreshAccessToken = asyncHandler(
             console.log(user);
             if(incomingRefreshToken !== user.refreshToken) throw new ApiError(401, "Refresh Token Expired");
             
-            // const { accessToken, newRefreshToken };
-            const tok = await generateAccessAndRefreshToken(user?._id);
-            console.log(tok.refreshToken);
-            
+            const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user?._id);
+                   
             const options = {
                 httpOnly: true,
                 secure: true
@@ -193,21 +191,21 @@ const refreshAccessToken = asyncHandler(
 
             res.clearCookie("accessToken", options).clearCookie("refreshToken", options);
 
-            user.refreshToken = tok.refreshToken;
+            user.refreshToken = newRefreshToken;
             await user.save({validateBeforeSave: false});
     
             return res.status(200)
-                .cookie("accessToken", tok.accessToken, options)
-                .cookie("refreshToken", tok.refreshToken, options)
+                .cookie("accessToken", accessToken, options)
+                .cookie("refreshToken", newRefreshToken, options)
                 .json(
                     new ApiResponse(
                         200,
-                        {"Refresh Token": tok.refreshToken},
+                        {"Refresh Token": newRefreshToken},
                         "User Access Renewed"
                     )
                 );
         } catch (error) {
-            throw new ApiError(401, `Server Error ->  ${error.message}`);
+            throw new ApiError(500, `Server Error ->  ${error.message}`);
         }
     }
 )
