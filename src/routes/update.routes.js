@@ -1,9 +1,10 @@
 import { Router } from  "express";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
-import { updatePassword } from "../controllers/update.controllers.js";
+import { updatePassword, updateHostel } from "../controllers/update.controllers.js";
 
 const router = Router();
 
-router.route("/updatePass").post(verifyJWT, updatePassword);
+router.route("/updatePass").patch(verifyJWT, updatePassword);
+router.route("/updateHostel").patch(verifyJWT, updateHostel);
 
 export default router;
