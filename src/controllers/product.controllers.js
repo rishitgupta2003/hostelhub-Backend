@@ -52,22 +52,25 @@ const addProduct = asyncHandler(
                 arr = uploadedUrls.filter(url => url !== null);
             }
             
+
+            const productObject = {
+                "name": productName,
+                "coverImg": coverImgLink?.url,
+                "productImgs": arr,
+                "description": description,
+                "price": price,
+                "createdBy": createdBy,
+            } 
             
-            const productObj = await Product.create(
-                {
-                    "name": productName,
-                    "coverImg": coverImgLink?.url,
-                    "productImgs": arr,
-                    "description": description,
-                    "price": price,
-                    "createdBy": createdBy,
-                }
+            await Product.create(
+                productObject
             );
+
             
             return res.status(200).json(
                 new ApiResponse(
                     200, 
-                    productObj, 
+                    productObject, 
                     "Product Added Successfully"
                 )
             )
