@@ -24,14 +24,14 @@ const userAdd_Auth = (Username, Name, Password, Gender, Email, PhoneNum, Hostel,
 
     return { 
         data: `${[
-            "Name -> " + " " +  nameParse,
-            "Password ->" + " " +  passParse,
-            "Username ->" + " " +  userParse,
-            "Gender ->" + " " +  genderParse,
-            "Email ->" + " " +  emailParse,
-            "Phone Number ->" + " " +  phoneNumParse,
-            "Hostel ->" + " " +  hostelParse,
-            "UID ->" + " " + uidParse
+            "Name -> " + nameParse,
+            "Password -> " +  passParse,
+            "Username -> " +  userParse,
+            "Gender -> " +  genderParse,
+            "Email -> " +  emailParse,
+            "Phone Number -> " +  phoneNumParse,
+            "Hostel -> " +  hostelParse,
+            "UID -> " + uidParse
         ]}`
     ,
         "success" : nameParse && passParse && userParse && genderParse && emailParse && phoneNumParse && hostelParse && uidParse
@@ -52,9 +52,9 @@ const userLogin_Auth = (Username_Email, Password) => {
 
     return { 
         data: `${[
-            "Password ->" + " " +  passParse,
-            "Username ->" + " " +  userParse,
-            "Email ->" + " " +  emailParse,
+            "Password -> " +  passParse,
+            "Username -> " +  userParse,
+            "Email -> " + emailParse,
         ]}`
     ,
         "success" : (emailParse || userParse) && passParse
@@ -63,7 +63,31 @@ const userLogin_Auth = (Username_Email, Password) => {
 }
 
 
+const productAuth = (Product, Description, Price) => {
+    
+    const product = zod.string().min(10);
+    const description = zod.string().max(300);
+    const price = zod.number();
+
+    const productParse = product.safeParse(Product);
+    const descParse = description.safeParse(Description);
+    const priceParse = price.safeParse(Price);
+
+    return {
+        data : `${
+            [
+                "Product -> " + productParse,
+                "Desc -> " + descParse,
+                "Price -> " + priceParse
+            ]
+        }`
+        ,
+        "success": productParse && descParse && priceParse
+    }
+}
+
 export {
     userAdd_Auth,
-    userLogin_Auth
+    userLogin_Auth,
+    productAuth
 }

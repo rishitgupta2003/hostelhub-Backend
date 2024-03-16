@@ -40,8 +40,6 @@ const productSchema = new Schema(
             ref: "Category",
             required: false,
         }
-
-
     },
     {
         timstamps: true
