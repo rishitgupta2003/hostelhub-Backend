@@ -12,6 +12,11 @@ router.route("/addProducts").post(verifyJWT,
             {
                 name: "coverImg",
                 maxCount: 1
+            },
+            
+            {
+                name: "productImg",
+                maxCount: 4
             }
         ]
     ), 
