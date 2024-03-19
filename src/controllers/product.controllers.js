@@ -19,6 +19,7 @@ const addProduct = asyncHandler(
         
         try {
             const { productName, description, price } = req.body;
+            console.log(req.body);
             const createdBy = req.user._id;
             
             const isValidated = productAuth(productName, description, price);
@@ -82,7 +83,45 @@ const addProduct = asyncHandler(
     } 
 )
 
+const getAllProducts = asyncHandler(
+    async(req, res) => {
+        try {
+            const products = await Product.find({});
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    products,
+                    "Done"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `Server Error -> ${error.message}`);
+        }
+    }
+)
+
+const getProduct = asyncHandler(
+    async (req, res) => {
+        try {
+            
+            const productID = req.query.id;
+            const product = await Product.findById(productID);
+            
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    product,
+                    "Product Fetched Successfully"
+                )
+            )
+        } catch (error) {
+            throw new ApiError(401, "Product Not Found");
+        }
+    }
+)
 
 export {
-    addProduct
+    addProduct,
+    getAllProducts,
+    getProduct
 }
