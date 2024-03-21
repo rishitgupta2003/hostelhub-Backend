@@ -86,7 +86,11 @@ const addProduct = asyncHandler(
 const getAllProducts = asyncHandler(
     async(req, res) => {
         try {
-            const products = await Product.find({});
+            const products = await Product.find(
+                {
+                    $and : [{"isSold" : false}]
+                }
+            );
             res.status(200).json(
                 new ApiResponse(
                     200,
@@ -107,6 +111,8 @@ const getProduct = asyncHandler(
             const productID = req.query.id;
             const product = await Product.findById(productID);
             
+            if(!product) throw new ApiError(401, "Product Not Available");
+
             res.status(200).json(
                 new ApiResponse(
                     200,

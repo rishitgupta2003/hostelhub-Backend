@@ -24,6 +24,6 @@ router.route("/addProducts").post(verifyJWT,
 );
 
 router.route("/allProducts").get(getAllProducts);
-router.route("/get-product").get(getProduct)
+router.route("/get-product").get(getProduct);
 
 export default router;
