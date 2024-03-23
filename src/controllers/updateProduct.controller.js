@@ -4,11 +4,66 @@ import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { v2 as cloudinary } from "cloudinary";
 
-const updateDetails = asyncHandler(
+const updateProductName = asyncHandler(
     async (req, res) => {
         const productID = req.query.id;
-        const formDetails = req.body;
+        const { productName } = req.body;
+        
+        try {            
+            const product = await Product.findById(productID);       
+            
+            if (!product) throw new ApiError(400, "Product Doesn't Exist");
+                
+            if (!req.user) throw new ApiError(400, "Login First");
+    
+            if(JSON.stringify(req.user._id) !== JSON.stringify(product.createdBy)) throw new ApiError(400, "Unauthorized Access");
+    
+            product.name = productName;
+    
+            product.save({validateBeforeSave: false});
+    
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "Product Name Updated"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `Server Error -> ${error.message}`);
+        }
+        
+    }
+)
 
+const updateProductPrice = asyncHandler(
+    async (req, res) => {
+        const productID = req.query.id;
+        const { productPrice } = req.body;
+        
+        try {            
+            const product = await Product.findById(productID);       
+            
+            if (!product) throw new ApiError(400, "Product Doesn't Exist");
+                
+            if (!req.user) throw new ApiError(400, "Login First");
+    
+            if(JSON.stringify(req.user._id) !== JSON.stringify(product.createdBy)) throw new ApiError(400, "Unauthorized Access");
+    
+            product.price = productPrice;
+    
+            product.save({validateBeforeSave: false});
+    
+            return res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "Product Price Updated"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `Server Error -> ${error.message}`);
+        }
         
     }
 )
@@ -84,6 +139,7 @@ const deleteCloudinaryResource = async (cloudPath) => {
 }
 
 export {
-    updateDetails,
+    updateProductName,
+    updateProductPrice,
     soldState
 }
