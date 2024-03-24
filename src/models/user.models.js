@@ -55,8 +55,8 @@ const userSchema = new Schema(
             enum: ["NekChand/Zakir", "SUKHNA", "TAGORE"],
             default: "NekChand/Zakir"
         }
-
-    },
+    
+    },    
     
     {
         timestamps: true
