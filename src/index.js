@@ -16,3 +16,5 @@ connectDB()
     .catch((err) => {
         console.log("Failed -> ",err.message);
     })
+
+export default app;
