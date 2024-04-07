@@ -34,7 +34,7 @@ Hostel Hub Backend is the backend server for an online buying and selling websit
 1. Clone this repository:
 
     ```bash
-    git clone https://github.com/rishitgupta203/hostelhub-Backend.git
+    git clone https://github.com/rishitgupta2003/hostelhub-Backend.git
     ```
 
 2. Install dependencies:
@@ -78,4 +78,4 @@ Contributions are welcome! Please feel free to submit a pull request.
 
 ## Contact
 
-For any inquiries or support, please contact [Rishit Gupta](https://github.com/rishitgupta203).
+For any inquiries or support, please contact [Rishit Gupta](https://github.com/rishitgupta2003).
