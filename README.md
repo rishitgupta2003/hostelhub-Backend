@@ -65,7 +65,7 @@ Hostel Hub Backend is the backend server for an online buying and selling websit
 4. Start the server:
 
     ```bash
-    npm start
+    npm run test
     ```
 
 ## Usage
