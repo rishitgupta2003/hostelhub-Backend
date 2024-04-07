@@ -53,7 +53,17 @@ const userSchema = new Schema(
         hostel_name: {
             type: String,
             enum: ["NekChand/Zakir", "SUKHNA", "TAGORE"],
-            default: "NekChand/Zakir"
+            required: true
+        },
+        isVerified: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+
+        verificationCode: {
+            type: Number,
+            required: true,
         }
     
     },    

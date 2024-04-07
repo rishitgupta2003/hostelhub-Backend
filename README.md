@@ -13,8 +13,9 @@ Hostel Hub Backend is the backend server for an online buying and selling websit
 
 ## Tech Stack
 
-- JavaScript
 - Node.js
+- MongoDB
+- ExpressJS
 
 ## Dependencies
 
@@ -60,6 +61,8 @@ Hostel Hub Backend is the backend server for an online buying and selling websit
     CLOUDINARY_API_KEY
     CLOUDINARY_API_SECRET
     DEFAULT_AVATAR_USER_SCHEMA
+    REGISTER_TOKEN_PASS
+    REGISTER_TOKEN_EXPIRY
     ```
 
 4. Start the server:

@@ -6,6 +6,9 @@ import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
 
 async function generateAccessAndRefreshToken(userID){
     try{
@@ -62,6 +65,8 @@ const registerUser = asyncHandler(
 
         const avatar = await uploadOnCloudinary(avatarLocalPath);
 
+        const verificationCode = getRandomInt(100000);
+
         const userObj = await User.create(
             {
                 username : username.toLowerCase(),
@@ -73,6 +78,7 @@ const registerUser = asyncHandler(
                 phoneNum,
                 avatar : avatar?.url,
                 hostel_name: hostel_name,
+                verificationCode: verificationCode
             }
         )
         
@@ -84,9 +90,29 @@ const registerUser = asyncHandler(
             throw new ApiError(500, "Something Went Wrong while Registering");
         }
 
-        return res.status(201).json(
-            new ApiResponse(200, createdUser , "User Registered Successfully")
-        )
+        const token = jwt.sign(
+            {
+                _id : createdUser._id,
+                verificationCode: verificationCode
+            },
+            process.env.REGISTER_TOKEN_PASS,
+            {
+                expiresIn: process.env.REGISTER_TOKEN_EXPIRY
+            }
+        );
+
+        if(!token) throw new ApiError(500, "Request Token Again");
+
+        const message = `Verify your Email -> OTP : ${verificationCode} OR Click on the link given -> http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}`;
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                createdUser,
+                message
+            )
+        );
+
     }
 )
 
@@ -123,6 +149,35 @@ const loginUser = asyncHandler(
         const passCheck = user.isPasswordCorrect(password);
 
         if(!passCheck) throw new ApiError(401, "Invalid Credentials");
+
+        if(!user.isVerified){
+            const verificationCode = getRandomInt(100000);
+            user.verificationCode = verificationCode;
+            user.save({validateBeforeSave: false}); 
+            
+            const token = jwt.sign(
+                {
+                    _id : user._id,
+                    verificationCode: verificationCode
+                },
+                process.env.REGISTER_TOKEN_PASS,
+                {
+                    expiresIn: process.env.REGISTER_TOKEN_EXPIRY
+                }
+            );
+
+                if(!token) throw new ApiError(500, "Request Token Again");
+
+            const message = `Verify your Email -> OTP : ${verificationCode} OR Click on the link given -> http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}`;
+
+            return res.status(300).json(
+                new ApiResponse(
+                    300,
+                    user,
+                    message
+                )
+            );
+        }
 
         const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id);
 
@@ -223,4 +278,69 @@ const getUser = asyncHandler(
     }
 )
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser };
+const verifyUserLink = asyncHandler(
+    async(req, res) => {
+        const token = req.query.token;
+
+        if(!token) throw new ApiError(404, "Unauthorised Request");
+
+        const decodedToken = jwt.verify(
+            token,
+            process.env.REGISTER_TOKEN_PASS
+        );
+
+        const id = decodedToken._id;
+        const verificationCode = decodedToken.verificationCode;
+
+        const user = await User.findById(id).select("-password");
+
+        if(!user) throw new ApiError(404, "Unauthorized Request");
+
+        if(user.verificationCode !== verificationCode) throw new ApiError("404", "Use Latest Link");
+
+        user.verificationCode = undefined;
+        user.isVerified = true;
+
+        user.save({validateBeforeSave: false});
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                user,
+                "You Can Now Login"
+            )
+        );
+    }
+);
+
+const verifyUserOTP = asyncHandler(
+    async(req, res) => {
+        const { id, OTP } = req.body;
+
+        if(!OTP) throw new ApiError(401, "Enter OTP First");
+
+        if(!id) throw new ApiError(500, "Use Link : Server Error");
+
+        const userObj = await User.findById(id);
+
+        if(!userObj) throw new ApiError(404, "User Not Found");
+
+        if(userObj.verificationCode !== OTP) throw new ApiError(409, "OTP Wrong");
+
+        userObj.isVerified = true;
+        userObj.verificationCode = undefined;
+        userObj.save({validateBeforeSave: false});
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                {},
+                "User Verified"
+            )
+        );
+
+    }
+);
+
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP };
