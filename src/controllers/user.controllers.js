@@ -321,11 +321,11 @@ const verifyUserOTP = asyncHandler(
 
         if(!id) throw new ApiError(500, "Use Link : Server Error");
 
-        const userObj = await User.findById(id);
+        const userObj = await User.findById(id).select("-password");
 
         if(!userObj) throw new ApiError(404, "User Not Found");
 
-        if(userObj.verificationCode !== OTP) throw new ApiError(409, "OTP Wrong");
+        if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
 
         userObj.isVerified = true;
         userObj.verificationCode = undefined;
