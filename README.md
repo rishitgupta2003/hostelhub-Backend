@@ -78,4 +78,4 @@ Contributions are welcome! Please feel free to submit a pull request.
 
 ## Contact
 
-For any inquiries or support, please contact [Rishit Gupta](https://github.com/{rishitgupta203}).
+For any inquiries or support, please contact [Rishit Gupta](https://github.com/rishitgupta203).
