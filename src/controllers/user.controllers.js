@@ -340,7 +340,7 @@ const verifyUserOTP = asyncHandler(
 
         if(!userObj) throw new ApiError(404, "User Not Found");
 
-        if(userobj.isVerified) throw new ApiError(401, "User Already Verified");
+        if(userObj.isVerified) throw new ApiError(401, "User Already Verified");
 
         if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
 
