@@ -5,6 +5,7 @@ import { asyncHandler } from "../util/asyncHandler.js";
 import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
+import { mailUser } from "../util/nodeMailer.js";
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -103,7 +104,14 @@ const registerUser = asyncHandler(
 
         if(!token) throw new ApiError(500, "Request Token Again");
 
-        const message = `Verify your Email -> OTP : ${verificationCode} OR Click on the link given -> http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}`;
+        const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
+            <p style="font-size: 16px;">Verify your Email:</p>
+            <p style="font-size: 16px;">OTP: ${verificationCode}</p>
+            <p style="font-size: 16px;">OR Click on the button below:</p>
+            <a href="http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">Verify Email</a>
+        </div>`;
+            
+        mailUser(email, "Verify Your Account", message);
 
         res.status(200).json(
             new ApiResponse(
@@ -166,9 +174,16 @@ const loginUser = asyncHandler(
                 }
             );
 
-                if(!token) throw new ApiError(500, "Request Token Again");
+            if(!token) throw new ApiError(500, "Request Token Again");
 
-            const message = `Verify your Email -> OTP : ${verificationCode} OR Click on the link given -> http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}`;
+            const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
+            <p style="font-size: 16px;">Verify your Email:</p>
+            <p style="font-size: 16px;">OTP: ${verificationCode}</p>
+            <p style="font-size: 16px;">OR Click on the button below:</p>
+            <a href="http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">Verify Email</a>
+            </div>`;
+            
+            mailUser(email, "Verify Your Account", message);
 
             return res.status(300).json(
                 new ApiResponse(
@@ -317,13 +332,15 @@ const verifyUserOTP = asyncHandler(
     async(req, res) => {
         const { id, OTP } = req.body;
 
-        if(!OTP) throw new ApiError(401, "Enter OTP First");
+        if(!OTP) throw new ApiError(401, "Enter OTP First");82198
 
         if(!id) throw new ApiError(500, "Use Link : Server Error");
 
         const userObj = await User.findById(id).select("-password");
 
         if(!userObj) throw new ApiError(404, "User Not Found");
+
+        if(userobj.isVerified) throw new ApiError(401, "User Already Verified");
 
         if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
 
@@ -342,5 +359,54 @@ const verifyUserOTP = asyncHandler(
     }
 );
 
+const requestOTP = asyncHandler(
+    async (req, res) => {
+        const id = req.query.id;
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP };
+        const user = await User.findById(id).select("-password");
+
+        if(!user) throw new ApiError(404, "User Doesn't Exist");
+
+        if(user.isVerified) throw new ApiError(401, "User Already Verified");
+
+        const verificationCode = getRandomInt(10000);
+        
+        user.verificationCode = verificationCode;
+
+        user.save({validateBeforeSave: true});
+
+        const token = jwt.sign(
+            {
+                _id : user._id,
+                verificationCode: verificationCode
+            },
+            process.env.REGISTER_TOKEN_PASS,
+            {
+                expiresIn: process.env.REGISTER_TOKEN_EXPIRY
+            }
+        );
+
+        if(!token) throw new ApiError(500, "Request Token Again");
+
+        const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
+        <p style="font-size: 16px;">Verify your Email:</p>
+        <p style="font-size: 16px;">OTP: ${verificationCode}</p>
+        <p style="font-size: 16px;">OR Click on the button below:</p>
+        <a href="http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">Verify Email</a>
+        </div>`;
+        
+        mailUser(user.email, "Verify Your Account", message);
+
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                {},
+                "OTP Mailed Again"
+            )
+        );
+
+    }
+)
+
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP, requestOTP };
