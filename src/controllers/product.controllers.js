@@ -93,7 +93,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
         const products = await Product.find({
             $and: [{ isSold: false }],
         });
-        res.status(200).json(new ApiResponse(200, products, "Done"));
+        res.status(200).json(new ApiResponse(200, products.reverse(), "Done"));
     } catch (error) {
         throw new ApiError(500, `Server Error -> ${error.message}`);
     }
@@ -157,4 +157,24 @@ const getProduct = asyncHandler(async (req, res) => {
     }
 });
 
-export { addProduct, getAllProducts, getProduct };
+const getProducts = asyncHandler(
+    async (req, res) => {
+        try {
+            const arr = req.user.productAdded;
+
+            let data = await Promise.all(arr.map(id => Product.findById(id)));
+
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    data.reverse(),
+                    "Products Fetched Successfully"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(404, `User Product Not Found -> ${error.message}`);
+        }
+    }
+)
+
+export { addProduct, getAllProducts, getProduct, getProducts };
