@@ -4,28 +4,28 @@ import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import { productAuth } from "../util/authSchema.js";
+import { User } from "../models/user.models.js";
+import mongoose from "mongoose";
 
 const addProduct = asyncHandler(
-    
     /*
-        Product Name, Description, Price, CreatedBy, category
-        Validate Details
-        Upload Imgs : CoverImg
-                      ProductImg
-        
-    */
+          Product Name, Description, Price, CreatedBy, category
+          Validate Details
+          Upload Imgs : CoverImg
+                        ProductImg
+          
+      */
 
     async (req, res) => {
-        
         try {
             const { productName, description, price } = req.body;
             console.log(req.body);
             const createdBy = req.user._id;
-            
+
             const isValidated = productAuth(productName, description, price);
-    
-            if(!isValidated.success) throw new ApiError(401, isValidated.data);
-    
+
+            if (!isValidated.success) throw new ApiError(401, isValidated.data);
+
             let coverImgLink;
 
             if (req.files && req.files.coverImg && req.files.coverImg.length > 0) {
@@ -33,101 +33,128 @@ const addProduct = asyncHandler(
                 coverImgLink = await uploadOnCloudinary(avatarLocalPath);
             }
 
-            
             let arr = [];
 
-            if (req.files && Array.isArray(req.files.productImg) && req.files.productImg.length > 0) {
-                
+            if (
+                req.files &&
+                Array.isArray(req.files.productImg) &&
+                req.files.productImg.length > 0
+            ) {
                 const uploadPromises = req.files.productImg.map(async (file) => {
                     const productImgLocalPath = file.path;
                     try {
-                        const productImgLink = await uploadOnCloudinary(productImgLocalPath);
+                        const productImgLink =
+                            await uploadOnCloudinary(productImgLocalPath);
                         return productImgLink.url;
                     } catch (error) {
-                        console.error(`Error uploading file ${file.filename}: ${error.message}`);
+                        console.error(
+                            `Error uploading file ${file.filename}: ${error.message}`
+                        );
                         return null;
                     }
                 });
 
                 const uploadedUrls = await Promise.all(uploadPromises);
-                arr = uploadedUrls.filter(url => url !== null);
+                arr = uploadedUrls.filter((url) => url !== null);
             }
-            
 
             const productObject = {
-                "name": productName,
-                "coverImg": coverImgLink?.url,
-                "productImgs": arr,
-                "description": description,
-                "price": price,
-                "createdBy": createdBy,
-            } 
-            
-            await Product.create(
-                productObject
+                name: productName,
+                coverImg: coverImgLink?.url,
+                productImgs: arr,
+                description: description,
+                price: price,
+                createdBy: createdBy,
+            };
+
+            const product = await Product.create(productObject);
+
+            const user = await User.findById(req.user._id).select(
+                "-password -refreshToken"
             );
 
-            
-            return res.status(200).json(
-                new ApiResponse(
-                    200, 
-                    productObject, 
-                    "Product Added Successfully"
-                )
-            )
+            user.productAdded?.push(product._id);
 
+            user.save({ validateBeforeSave: false });
+
+            return res
+                .status(200)
+                .json(
+                    new ApiResponse(200, productObject, "Product Added Successfully")
+                );
         } catch (error) {
             throw new ApiError(400, error.message);
         }
-
-    } 
-)
-
-const getAllProducts = asyncHandler(
-    async(req, res) => {
-        try {
-            const products = await Product.find(
-                {
-                    $and : [{"isSold" : false}]
-                }
-            );
-            res.status(200).json(
-                new ApiResponse(
-                    200,
-                    products,
-                    "Done"
-                )
-            );
-        } catch (error) {
-            throw new ApiError(500, `Server Error -> ${error.message}`);
-        }
     }
-)
+);
 
-const getProduct = asyncHandler(
-    async (req, res) => {
-        try {
-            
-            const productID = req.query.id;
-            const product = await Product.findById(productID);
-            
-            if(!product) throw new ApiError(401, "Product Not Available");
-
-            res.status(200).json(
-                new ApiResponse(
-                    200,
-                    product,
-                    "Product Fetched Successfully"
-                )
-            )
-        } catch (error) {
-            throw new ApiError(401, "Product Not Found");
-        }
+const getAllProducts = asyncHandler(async (req, res) => {
+    try {
+        const products = await Product.find({
+            $and: [{ isSold: false }],
+        });
+        res.status(200).json(new ApiResponse(200, products, "Done"));
+    } catch (error) {
+        throw new ApiError(500, `Server Error -> ${error.message}`);
     }
-)
+});
 
-export {
-    addProduct,
-    getAllProducts,
-    getProduct
-}
+const getProduct = asyncHandler(async (req, res) => {
+    try {
+        const productID = req.query.id;
+
+        const product = await Product.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(String(productID)),
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdBy",
+                    foreignField: "_id",
+                    as: "creator_details",
+                },
+            },
+            {
+                $addFields: {
+                    username: {
+                        $first: "$creator_details.username",
+                    },
+                    phoneNum: {
+                        $first: "$creator_details.phoneNum",
+                    },
+                    hostelName: {
+                        $first: "$creator_details.hostel_name",
+                    },
+                    uid: {
+                        $first: "$creator_details.uid",
+                    },
+                },
+            },
+            {
+                $project: {
+                    name: 1,
+                    coverImg: 1,
+                    productImgs: 1,
+                    description: 1,
+                    price: 1,
+                    isSold: 1,
+                    username: 1,
+                    phoneNum: 1,
+                    hostelName: 1,
+                    uid: 1,
+                },
+            },
+        ]);
+
+        res
+            .status(200)
+            .json(new ApiResponse(200, product[0], "Product Fetched Successfully"));
+    } catch (error) {
+        throw new ApiError(401, "Product Not Found");
+    }
+});
+
+export { addProduct, getAllProducts, getProduct };

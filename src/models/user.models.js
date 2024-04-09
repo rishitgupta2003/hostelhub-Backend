@@ -60,12 +60,18 @@ const userSchema = new Schema(
             required: true,
             default: false
         },
-
         verificationCode: {
             type: Number,
             required: true,
+        },
+        productAdded: {
+            type: [
+                Schema.Types.ObjectId
+            ],
+            ref: "Products",
+            required: false,
+            default: []
         }
-    
     },    
     
     {

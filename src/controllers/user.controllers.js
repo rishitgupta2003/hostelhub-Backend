@@ -2,7 +2,7 @@ import { User } from "../models/user.models.js";
 import { ApiError } from "../util/ApiError.js";
 import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
-import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
+import { productAuth, userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
 import { mailUser } from "../util/nodeMailer.js";
@@ -283,11 +283,35 @@ const refreshAccessToken = asyncHandler(
 
 const getUser = asyncHandler(
     async (req, res) => {
+
+        const user = await User.aggregate(
+            [
+                {
+                    $match: {
+                        _id: req.user?._id
+                    }
+                }
+                ,{
+                    $project: {
+                        username: 1,
+                        name: 1,
+                        uid: 1,
+                        gender: 1,
+                        email: 1,
+                        phoneNum: 1,
+                        productAdded: 1,
+                        hostel_name: 1
+
+                    }
+                }
+            ]
+        )
+
         return res
         .status(200)
         .json(new ApiResponse(
             200,
-            req.user,
+            user[0],
             "User fetched successfully"
         ))
     }
