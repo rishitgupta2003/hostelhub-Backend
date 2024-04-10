@@ -2,7 +2,7 @@ import { User } from "../models/user.models.js";
 import { ApiError } from "../util/ApiError.js";
 import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
-import { productAuth, userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
+import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
 import { mailUser } from "../util/nodeMailer.js";
@@ -185,9 +185,9 @@ const loginUser = asyncHandler(
             
             mailUser(email, "Verify Your Account", message);
 
-            return res.status(300).json(
+            return res.status(200).json(
                 new ApiResponse(
-                    300,
+                    200,
                     user,
                     message
                 )
@@ -300,7 +300,8 @@ const getUser = asyncHandler(
                         email: 1,
                         phoneNum: 1,
                         productAdded: 1,
-                        hostel_name: 1
+                        hostel_name: 1,
+                        avatar: 1
 
                     }
                 }
