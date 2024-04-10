@@ -185,9 +185,9 @@ const loginUser = asyncHandler(
             
             mailUser(email, "Verify Your Account", message);
 
-            return res.status(200).json(
+            return res.status(300).json(
                 new ApiResponse(
-                    200,
+                    300,
                     user,
                     message
                 )
@@ -199,9 +199,12 @@ const loginUser = asyncHandler(
         const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
         const options = {
+            expires: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000),
             httpOnly: true,
-            secure: true
-        }
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        };
 
         return res.status(200)
             .cookie("accessToken", accessToken, options)
@@ -225,9 +228,12 @@ const logoutUser = asyncHandler(
         await user.save({validateBeforeSave: false});
         
         const options = {
+            expires: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000),
             httpOnly: true,
-            secure: true
-        }
+            secure: true,
+            sameSite: "none",
+            path: "/",
+        };
 
         res.status(200)
         .clearCookie("accessToken", options)
@@ -254,8 +260,11 @@ const refreshAccessToken = asyncHandler(
             const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user?._id);
                    
             const options = {
+                expires: new Date(Date.now() + 100 * 24 * 60 * 60 * 1000),
                 httpOnly: true,
-                secure: true
+                secure: true,
+                sameSite: "none",
+                path: "/",
             };
 
 
