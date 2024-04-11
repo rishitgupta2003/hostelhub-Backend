@@ -1,3 +1,4 @@
+import { User } from "../models/user.models.js";
 import { Product } from "../models/product.models.js";
 import { ApiError } from "../util/ApiError.js";
 import { ApiResponse } from "../util/ApiResponse.js";
@@ -125,6 +126,8 @@ const removeProduct = asyncHandler(
             await deleteCloudinaryResource(product.coverImg);
     
             await Product.findByIdAndDelete(productID);
+
+            await User.findByIdAndUpdate(userID, { $pull: { productAdded: productID } });            
     
             res.status(200).json(
                 new ApiResponse(
