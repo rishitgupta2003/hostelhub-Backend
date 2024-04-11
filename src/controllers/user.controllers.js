@@ -6,7 +6,7 @@ import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
 import { mailUser } from "../util/nodeMailer.js";
-
+import zod from "zod";
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
@@ -27,7 +27,7 @@ async function generateAccessAndRefreshToken(userID){
         }
 
     }catch(err){
-        throw new ApiError(500, err.message);
+        throw new ApiError(500, ererrorr.message);
     }
 }
 
@@ -366,7 +366,7 @@ const verifyUserOTP = asyncHandler(
     async(req, res) => {
         const { id, OTP } = req.body;
 
-        if(!OTP) throw new ApiError(401, "Enter OTP First");82198
+        if(!OTP) throw new ApiError(401, "Enter OTP First");
 
         if(!id) throw new ApiError(500, "Use Link : Server Error");
 
@@ -442,5 +442,93 @@ const requestOTP = asyncHandler(
     }
 )
 
+const forgetPassword = asyncHandler(
+    async(req, res) => {
+        try {
+            const { email } = req.body;
+            const user = await User.findOne(
+                {
+                    email: email
+                }
+            ).select("-password -refreshToken");
+            
+            const verificationCode = getRandomInt(100000);
+            user.verificationCode = verificationCode;
+            user.save({validateBeforeSave: true});
+    
+    
+            const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
+            <p style="font-size: 16px;">Authenticate your Email:</p>
+            <p style="font-size: 16px;">OTP: ${verificationCode}</p>
+            <p style="font-size: 16px;">OR Click on the button below:</p>
+            </div>`
+    
+            mailUser(user.email, "Forget Password Request", message);
+    
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "OTP Send - Verify Email"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `${error.message}`);
+        }
+    }
+)
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP, requestOTP };
+const verifyForgetOTP = asyncHandler(
+    async (req, res) => {
+        try {
+            const { id, OTP } = req.body;
+    
+            if(!OTP) throw new ApiError(401, "Enter OTP First");
+    
+            if(!id) throw new ApiError(500, "Use Link : Server Error");
+    
+            const userObj = await User.findById(id).select("-password");
+    
+            if(!userObj) throw new ApiError(404, "User Not Found");
+    
+            if(userObj.isVerified) throw new ApiError(401, "User Already Verified");
+    
+            if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
+    
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "OTP Verified"
+                )
+            )
+        } catch (error) {
+            new ApiError(500, `${error.message}`);
+        }
+    }
+)
+
+const newPassword = asyncHandler(
+    async (req, res) => {
+        try {
+            const { userID, password } = req.body;
+            const user = User.findById(userID);
+            user.password = password;
+    
+            user.save({validateBeforeSave: false});
+            
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "Password Updated Successfully"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `${error.message}`);
+        }
+    }
+)
+
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP, requestOTP, forgetPassword, verifyForgetOTP, newPassword };
