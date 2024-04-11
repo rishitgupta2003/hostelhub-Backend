@@ -105,6 +105,40 @@ const soldState = asyncHandler(
     }
 )
 
+const removeProduct = asyncHandler(
+    async (req, res) => {
+        try {
+            const productID = req.query.id;
+            const userID = req.user._id;
+    
+            if(!productID) throw new ApiError(404, "Product ID Not Valid");
+    
+            const product = await Product.findById(productID);
+            if(JSON.stringify(product.createdBy) !== JSON.stringify(userID)) throw new ApiError(401, "Unauthorized Access");
+            
+            const arr = product.productImgs;
+    
+            await Promise.all(arr.map(async (val) => {
+                await deleteCloudinaryResource(val);
+            }));
+    
+            await deleteCloudinaryResource(product.coverImg);
+    
+            await Product.findByIdAndDelete(productID);
+    
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    "Product Removed Successfully"
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `${error.message}`);
+        }
+    }
+)
+
 
 const extractPublicId = (cloudinaryUrl, bucketName) => {
     const parts = cloudinaryUrl.split("/");
@@ -141,5 +175,6 @@ const deleteCloudinaryResource = async (cloudPath) => {
 export {
     updateProductName,
     updateProductPrice,
-    soldState
+    soldState,
+    removeProduct
 }
