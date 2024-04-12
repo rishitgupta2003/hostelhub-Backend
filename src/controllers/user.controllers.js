@@ -469,7 +469,7 @@ const forgetPassword = asyncHandler(
             res.status(200).json(
                 new ApiResponse(
                     200,
-                    {},
+                    user,
                     "OTP Send - Verify Email"
                 )
             );
