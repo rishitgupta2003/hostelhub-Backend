@@ -62,7 +62,6 @@ const userSchema = new Schema(
         },
         verificationCode: {
             type: Number,
-            required: true,
         },
         productAdded: {
             type: [
