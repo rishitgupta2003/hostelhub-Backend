@@ -184,7 +184,7 @@ const loginUser = asyncHandler(
             <a href="http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">Verify Email</a>
             </div>`;
             
-            mailUser(email, "Verify Your Account", message);
+            mailUser(user.email, "Verify Your Account", message);
 
             return res.status(300).json(
                 new ApiResponse(
