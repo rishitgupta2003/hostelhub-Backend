@@ -148,7 +148,7 @@ const loginUser = asyncHandler(
                 ]
             }
         ).select(
-            "-refreshToken -password -verificationCode"
+            "-refreshToken"
         );
 
         if(!user) throw new ApiError(404, "User Doesn't Exist");
@@ -422,8 +422,6 @@ const requestOTP = asyncHandler(
         const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
         <p style="font-size: 16px;">Verify your Email:</p>
         <p style="font-size: 16px;">OTP: ${verificationCode}</p>
-        <p style="font-size: 16px;">OR Click on the button below:</p>
-        <a href="http://localhost:${process.env.PORT}/api/v1/users/verifyToken?token=${token}" style="display: inline-block; background-color: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">Verify Email</a>
         </div>`;
         
         mailUser(user.email, "Verify Your Account", message);
@@ -457,7 +455,6 @@ const forgetPassword = asyncHandler(
             const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
             <p style="font-size: 16px;">Authenticate your Email:</p>
             <p style="font-size: 16px;">OTP: ${verificationCode}</p>
-            <p style="font-size: 16px;">OR Click on the button below:</p>
             </div>`
     
             mailUser(user.email, "Forget Password Request", message);
