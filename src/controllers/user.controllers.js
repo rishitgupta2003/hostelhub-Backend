@@ -511,7 +511,7 @@ const newPassword = asyncHandler(
     async (req, res) => {
         try {
             const { userID, password } = req.body;
-            const user = User.findById(userID);
+            const user = await User.findById(userID);
             user.password = password;
     
             user.save({validateBeforeSave: false});
