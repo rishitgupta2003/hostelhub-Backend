@@ -6,7 +6,8 @@ import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
 import jwt from "jsonwebtoken"; 
 import { mailUser } from "../util/nodeMailer.js";
-import zod from "zod";
+import { Product } from "../models/product.models.js";
+import mongoose from "mongoose";
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
@@ -122,7 +123,7 @@ const registerUser = asyncHandler(
         );
 
     }
-)
+);
 
 const loginUser = asyncHandler(
     async(req, res) => {
@@ -218,7 +219,7 @@ const loginUser = asyncHandler(
             );        
 
     }
-)
+);
 
 const logoutUser = asyncHandler(
     async (req, res) => {
@@ -242,7 +243,7 @@ const logoutUser = asyncHandler(
             new ApiResponse(200, {} , "User Logged Out Successfully")
         )
     }
-)
+);
 
 const refreshAccessToken = asyncHandler(
     async(req, res) => {
@@ -287,7 +288,7 @@ const refreshAccessToken = asyncHandler(
             throw new ApiError(500, `Server Error ->  ${error.message}`);
         }
     }
-)
+);
 
 
 const getUser = asyncHandler(
@@ -325,7 +326,7 @@ const getUser = asyncHandler(
             "User fetched successfully"
         ))
     }
-)
+);
 
 const verifyUserLink = asyncHandler(
     async(req, res) => {
@@ -440,7 +441,7 @@ const requestOTP = asyncHandler(
         );
 
     }
-)
+);
 
 const forgetPassword = asyncHandler(
     async(req, res) => {
@@ -476,7 +477,7 @@ const forgetPassword = asyncHandler(
             throw new ApiError(500, `${error.message}`);
         }
     }
-)
+);
 
 const verifyForgetOTP = asyncHandler(
     async (req, res) => {
@@ -506,7 +507,7 @@ const verifyForgetOTP = asyncHandler(
             new ApiError(500, `${error.message}`);
         }
     }
-)
+);
 
 const newPassword = asyncHandler(
     async (req, res) => {
@@ -528,7 +529,111 @@ const newPassword = asyncHandler(
             throw new ApiError(500, `${error.message}`);
         }
     }
-)
+);
 
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP, requestOTP, forgetPassword, verifyForgetOTP, newPassword };
+const requestProduct = asyncHandler(
+    async (req, res) => {
+        try {
+            const id = req.user._id;
+            if(!id) throw new ApiError(401, "Unauthorized Access");
+            const productID = req.query.id;
+            if(!productID) throw new ApiError(402, "Product ID is not Valid");
+    
+            const user = await User.findById(id).select(
+                "-password -refreshToken"
+            );
+    
+            if(!user) throw new ApiError(500, "User Cannot be located");
+    
+            const product = await Product.aggregate(
+                [
+                    {
+                        $match: {
+                            _id: new mongoose.Types.ObjectId(String(productID))
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "createdBy",
+                            foreignField: "_id",
+                            as: "creator_details",
+                        }
+                    },
+                    {
+                        $addFields: {
+                            username: {
+                                $first: "$creator_details.username",
+                            },
+                            email: {
+                                $first: "$creator_details.email",
+                            },
+                            userName: {
+                                $first: "$creator_details.name",
+                            },
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                            email: 1,
+                            userName: 1,
+                            coverImg: 1
+                        }
+                    }
+                ]
+            );
+    
+            if(!product.length) throw new ApiError(404, "Product Not Found");
+    
+            console.log(product[0]);
+    
+            const message = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+            <div style="margin-bottom: 20px;">
+                <p>Dear ${product[0].userName},</p>
+                <p>${user.username} is interested in your Product: ${product[0].name}.</p>
+                <img src="${product[0].coverImg}" alt="Product Image" style="max-width: 100%;">
+                <p>You can contact this user. Details Below:</p>
+            </div>
+            <table style="margin-top: 20px; border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Detail</th>
+                    <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Information</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Name</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Contact Number</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.phoneNum}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Email ID</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.email}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Hostel Name</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.hostel_name}</td>
+                </tr>
+            </table>
+        </div>`;
+            
+            mailUser(product[0].email, "Your Product has a Buyer", message);
+    
+            res.status(200).json(
+                new ApiResponse(
+                    200,
+                    {},
+                    message
+                )
+            );
+        } catch (error) {
+            throw new ApiError(500, `${error.message}`);
+        }
+
+    }
+);
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, getUser, verifyUserLink, verifyUserOTP, requestOTP, forgetPassword, verifyForgetOTP, newPassword, requestProduct };
