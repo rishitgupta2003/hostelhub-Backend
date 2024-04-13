@@ -56,8 +56,9 @@ const addProduct = asyncHandler(
 
                 const uploadedUrls = await Promise.all(uploadPromises);
                 arr = uploadedUrls.filter((url) => url !== null);
-                arr.push(coverImgLink[0]);
             }
+            
+            arr.push(coverImgLink?.url);
 
             const productObject = {
                 name: productName,
@@ -66,7 +67,7 @@ const addProduct = asyncHandler(
                 description: description,
                 price: price,
                 createdBy: createdBy,
-                isAnonymous: isAnonymous
+                isAnonymous: Boolean(isAnonymous)
             };
 
             const product = await Product.create(productObject);
