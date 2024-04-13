@@ -581,38 +581,45 @@ const requestProduct = asyncHandler(
             console.log(product[0]);
     
             const message = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
-            <div style="margin-bottom: 20px;">
-                <p>Dear ${product[0].userName},</p>
-                <p>${user.username} is interested in your Product: ${product[0].name}.</p>
-                <img src="${product[0].coverImg}" alt="Product Image" style="max-width: 100%;">
-                <p>You can contact this user. Details Below:</p>
-            </div>
-            <table style="margin-top: 20px; border-collapse: collapse; width: 100%;">
-                <tr>
-                    <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Detail</th>
-                    <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Information</th>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Name</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.name}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Contact Number</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.phoneNum}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Email ID</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.email}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Hostel Name</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.hostel_name}</td>
-                </tr>
-            </table>
-        </div>`;
+                <div style="margin-bottom: 20px;">
+                    <p>Dear ${product[0].userName},</p>
+                    <p>${user.username} is interested in your Product: ${product[0].name}.</p>
+                    <img src="${product[0].coverImg}" alt="Product Image" style="max-width: 100%;">
+                    <p>You can contact this user. Details Below:</p>
+                </div>
+                <table style="margin-top: 20px; border-collapse: collapse; width: 100%;">
+                    <tr>
+                        <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Detail</th>
+                        <th style="padding: 8px; border-bottom: 1px solid #ddd; background-color: #f2f2f2; text-align: left;">Information</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Name</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Contact Number</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.phoneNum}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Email ID</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.email}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">Hostel Name</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: left;">${user.hostel_name}</td>
+                    </tr>
+                </table>
+            </div>`;
+
+            const senderMessage = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+                <div style="margin-bottom: 20px;">
+                    <p>Dear ${user.name}, Product Requested Successfully: ${product[0].name}.</p>
+                    <p>Uploader will reach out to you as soon as possible.</p>
+                    <img src="${product[0].coverImg}" alt="Product Image" style="max-width: 100%;">
+                </div>`;
             
             mailUser(product[0].email, "Your Product has a Buyer", message);
-    
+            mailUser(user.email, "Product Requested Successfully", senderMessage);
             res.status(200).json(
                 new ApiResponse(
                     200,
