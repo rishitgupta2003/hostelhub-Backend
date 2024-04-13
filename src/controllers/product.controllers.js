@@ -120,7 +120,7 @@ const getProduct = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     username: {
-                        $first: "$creator_details.username",
+                        $first: "$creator_details.name",
                     },
                     phoneNum: {
                         $first: "$creator_details.phoneNum",
