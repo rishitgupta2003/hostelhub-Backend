@@ -39,6 +39,11 @@ const productSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Category",
             required: false,
+        },
+        isAnonymous: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     },
     {

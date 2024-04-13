@@ -18,7 +18,7 @@ const addProduct = asyncHandler(
 
     async (req, res) => {
         try {
-            const { productName, description, price } = req.body;
+            const { productName, description, price, isAnonymous } = req.body;
             console.log(req.body);
             const createdBy = req.user._id;
 
@@ -56,6 +56,7 @@ const addProduct = asyncHandler(
 
                 const uploadedUrls = await Promise.all(uploadPromises);
                 arr = uploadedUrls.filter((url) => url !== null);
+                arr.push(coverImgLink[0]);
             }
 
             const productObject = {
@@ -65,6 +66,7 @@ const addProduct = asyncHandler(
                 description: description,
                 price: price,
                 createdBy: createdBy,
+                isAnonymous: isAnonymous
             };
 
             const product = await Product.create(productObject);
