@@ -67,7 +67,7 @@ const addProduct = asyncHandler(
                 description: description,
                 price: price,
                 createdBy: createdBy,
-                isAnonymous: Boolean(isAnonymous)
+                isAnonymous: Boolean(Number(isAnonymous))
             };
 
             const product = await Product.create(productObject);
