@@ -95,7 +95,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
     try {
         const products = await Product.find({
             $and: [{ isSold: false }],
-        });
+        }).sort({ createdAt: -1 });
         res.status(200).json(new ApiResponse(200, products.reverse(), "Done"));
     } catch (error) {
         throw new ApiError(500, `Server Error -> ${error.message}`);
@@ -180,4 +180,17 @@ const getProducts = asyncHandler(
     }
 )
 
-export { addProduct, getAllProducts, getProduct, getProducts };
+const advertisement = asyncHandler(
+    async(req, res) => {
+        try {
+            const products = await Product.find({
+                $and: [{ isSold: false }],
+            }).sort({ createdAt: -1 }).limit(4);
+            res.status(200).json(new ApiResponse(200, products, "Done"));
+        } catch (error) {
+            throw new ApiError(500, `Server Error -> ${error.message}`);
+        }    
+    }
+);
+
+export { addProduct, getAllProducts, getProduct, getProducts, advertisement };
