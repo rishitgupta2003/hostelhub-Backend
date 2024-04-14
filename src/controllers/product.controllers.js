@@ -148,6 +148,7 @@ const getProduct = asyncHandler(async (req, res) => {
                     phoneNum: 1,
                     hostelName: 1,
                     uid: 1,
+                    isAnonymous: 1
                 },
             },
         ]);
