@@ -7,6 +7,5 @@
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "src/index.js" }
   ],
-  "public": "public",
-  "ignore": ["**/node_modules/**"]
+  "public": "public"
 }
