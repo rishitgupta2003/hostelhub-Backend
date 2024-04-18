@@ -139,6 +139,7 @@ const getProduct = asyncHandler(async (req, res) => {
                         coverImg: 1,
                         productImgs: 1,
                         isSold: 1,
+                        isAnonymous: 1
                     },
                 },
             ]);
