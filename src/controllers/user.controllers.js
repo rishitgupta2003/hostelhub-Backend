@@ -110,7 +110,7 @@ const registerUser = asyncHandler(
             <p style="font-size: 16px;">OTP: ${verificationCode}</p>
             </div>`;
             
-        await mailUser(email, "Verify Your Account", message);
+        mailUser(email, "Verify Your Account", message);
 
         res.status(200).json(
             new ApiResponse(
@@ -180,7 +180,7 @@ const loginUser = asyncHandler(
             <p style="font-size: 16px;">OTP: ${verificationCode}</p>
             </div>`;
             
-            await mailUser(user.email, "Verify Your Account", message);
+            mailUser(user.email, "Verify Your Account", message);
 
             return res.status(300).json(
                 new ApiResponse(
@@ -424,7 +424,7 @@ const requestOTP = asyncHandler(
         <p style="font-size: 16px;">OTP: ${verificationCode}</p>
         </div>`;
         
-        await mailUser(user.email, "Verify Your Account", message);
+        mailUser(user.email, "Verify Your Account", message);
 
         res.status(200).json(
             new ApiResponse(
@@ -457,7 +457,7 @@ const forgetPassword = asyncHandler(
             <p style="font-size: 16px;">OTP: ${verificationCode}</p>
             </div>`
     
-            await mailUser(user.email, "Forget Password Request", message);
+            mailUser(user.email, "Forget Password Request", message);
     
             res.status(200).json(
                 new ApiResponse(
@@ -618,8 +618,8 @@ const requestProduct = asyncHandler(
                     <img src="${product[0].coverImg}" alt="Product Image" style="max-width: 100%;">
                 </div>`;
             
-            await mailUser(product[0].email, "Your Product has a Buyer", message);
-            await mailUser(user.email, "Product Requested Successfully", senderMessage);
+            mailUser(product[0].email, "Your Product has a Buyer", message);
+            mailUser(user.email, "Product Requested Successfully", senderMessage);
             res.status(200).json(
                 new ApiResponse(
                     200,

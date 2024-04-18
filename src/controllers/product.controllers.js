@@ -106,6 +106,48 @@ const getProduct = asyncHandler(async (req, res) => {
     try {
         const productID = req.query.id;
 
+        const productObj = await Product.findById(new mongoose.Types.ObjectId(String(productID)));
+
+        if(productObj.isAnonymous){
+            const product = await Product.aggregate([
+                {
+                    $match: {
+                        _id: new mongoose.Types.ObjectId(String(productID))
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "createdBy",
+                        foreignField: "_id",
+                        as: "creator_details",
+                    },
+                },
+                {
+                    $addFields: {
+                        hostel_name: {
+                            $first: "$creator_details.hostel_name",
+                        },
+                    },
+                },
+                {
+                    $project: {
+                        name: 1,
+                        description: 1,
+                        price: 1,
+                        hostel_name: 1,
+                        coverImg: 1,
+                        productImgs: 1,
+                        isSold: 1,
+                    },
+                },
+            ]);
+
+            return res.status(200).json(
+                new ApiResponse(200, product[0], "Product Fetched Successfully")
+            );
+        }
+
         const product = await Product.aggregate([
             {
                 $match: {
