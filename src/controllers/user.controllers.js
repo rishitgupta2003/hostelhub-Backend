@@ -182,9 +182,9 @@ const loginUser = asyncHandler(
             
             mailUser(user.email, "Verify Your Account", message);
 
-            return res.status(300).json(
+            return res.status(200).json(
                 new ApiResponse(
-                    300,
+                    200,
                     user,
                     message
                 )
