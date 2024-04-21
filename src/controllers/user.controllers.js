@@ -8,8 +8,9 @@ import jwt from "jsonwebtoken";
 import { mailUser } from "../util/nodeMailer.js";
 import { Product } from "../models/product.models.js";
 import mongoose from "mongoose";
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
+
+function generateRandomNumber() {
+    return Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
 }
 
 async function generateAccessAndRefreshToken(userID){
