@@ -53,7 +53,7 @@ const registerUser = asyncHandler(
 
         const usernameExist = await User.findOne(
             {
-                $or : [{email}]
+                $or : [{uid}]
             }
         );
 
