@@ -44,7 +44,7 @@ const registerUser = asyncHandler(
         //check for user creation
         //return response
 
-        const {username, name, email, password, uid, gender, phoneNum, hostel_name} = req.body;
+        const {name, password, uid, gender, phoneNum, hostel_name} = req.body;
         const isValidated = userAdd_Auth(username, name, password, gender, email, phoneNum, hostel_name, uid);
     
         if(!isValidated.success){
@@ -78,11 +78,11 @@ const registerUser = asyncHandler(
 
         const userObj = await User.create(
             {
-                username : username.toLowerCase(),
+                username : uid.toLowerCase(),
                 name,
                 uid,
                 gender,
-                email,
+                email: uid.toLowerCase() + "@cuchd.in",
                 password,
                 phoneNum,
                 avatar : avatar?.url,
