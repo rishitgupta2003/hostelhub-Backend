@@ -4,7 +4,7 @@ import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { userAdd_Auth, userLogin_Auth } from "../util/authSchema.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js";
-import jwt from "jsonwebtoken"; 
+import jwt, { decode } from "jsonwebtoken"; 
 import { mailUser } from "../util/nodeMailer.js";
 import { Product } from "../models/product.models.js";
 import mongoose from "mongoose";
@@ -69,6 +69,13 @@ const registerUser = asyncHandler(
 
         const verificationCode = getRandomInt();
 
+        const verificationString = jwt.sign(
+            {
+                verificationCode: verificationCode
+            },
+            process.env.REGISTER_TOKEN_PASS
+        )
+
         const userObj = await User.create(
             {
                 username : username.toLowerCase(),
@@ -80,7 +87,7 @@ const registerUser = asyncHandler(
                 phoneNum,
                 avatar : avatar?.url,
                 hostel_name: hostel_name,
-                verificationCode: verificationCode
+                verificationCode: verificationString
             }
         )
         
@@ -159,7 +166,15 @@ const loginUser = asyncHandler(
 
         if(!user.isVerified){
             const verificationCode = getRandomInt();
-            user.verificationCode = verificationCode;
+
+            const verificationString = jwt.sign(
+                {
+                    verificationCode: verificationCode
+                },
+                process.env.REGISTER_TOKEN_PASS
+            )
+
+            user.verificationCode = verificationString;
             user.save({validateBeforeSave: false}); 
             
             const token = jwt.sign(
@@ -341,8 +356,13 @@ const verifyUserLink = asyncHandler(
         const user = await User.findById(id).select("-password");
 
         if(!user) throw new ApiError(404, "Unauthorized Request");
+        
+        const decodedOTP = jwt.verify(
+            user.verificationCode,
+            process.env.REGISTER_TOKEN_PASS
+        )
 
-        if(user.verificationCode !== verificationCode) throw new ApiError("404", "Use Latest Link");
+        if(decodedOTP.verificationCode !== verificationCode) throw new ApiError("404", "Use Latest Link");
 
         user.verificationCode = undefined;
         user.isVerified = true;
@@ -373,7 +393,12 @@ const verifyUserOTP = asyncHandler(
 
         if(userObj.isVerified) throw new ApiError(401, "User Already Verified");
 
-        if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
+        const decodedOTP = jwt.verify(
+            userObj.verificationCode,
+            process.env.REGISTER_TOKEN_PASS
+        )
+
+        if(decodedOTP.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
 
         userObj.isVerified = true;
         userObj.verificationCode = undefined;
@@ -402,9 +427,15 @@ const requestOTP = asyncHandler(
 
         const verificationCode = getRandomInt();
         
-        user.verificationCode = verificationCode;
+        const verificationString = jwt.sign(
+            {
+                verificationCode: verificationCode
+            },
+            process.env.REGISTER_TOKEN_PASS
+        )
 
-        user.save({validateBeforeSave: true});
+        user.verificationCode = verificationString;
+        user.save({validateBeforeSave: false});
 
         const token = jwt.sign(
             {
@@ -448,8 +479,15 @@ const forgetPassword = asyncHandler(
             ).select("-password -refreshToken");
             
             const verificationCode = getRandomInt();
-            user.verificationCode = verificationCode;
-            user.save({validateBeforeSave: true});
+            const verificationString = jwt.sign(
+                {
+                    verificationCode: verificationCode
+                },
+                process.env.REGISTER_TOKEN_PASS
+            )
+
+            user.verificationCode = verificationString;
+            user.save({validateBeforeSave: false});
     
     
             const message = `<div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -484,8 +522,13 @@ const verifyForgetOTP = asyncHandler(
             const userObj = await User.findById(id).select("-password");
     
             if(!userObj) throw new ApiError(404, "User Not Found");
+
+            const decodedOTP = jwt.verify(
+                userObj.verificationCode,
+                process.env.REGISTER_TOKEN_PASS
+            );
     
-            if(userObj.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
+            if(decodedOTP.verificationCode !== Number(OTP)) throw new ApiError(409, "OTP Wrong");
     
             res.status(200).json(
                 new ApiResponse(

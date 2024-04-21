@@ -16,7 +16,7 @@ const limiter = rateLimit(
 app.use(limiter);
 
 app.get('/' , (req, res) => {
-    res.status(200).send("Go To -> https://cuhostelhub.vercel.app");
+    res.redirect("https://cuhostelhub.vercel.app");
 });
 
 app.use(cors({
