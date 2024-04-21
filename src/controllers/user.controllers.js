@@ -45,7 +45,7 @@ const registerUser = asyncHandler(
         //return response
 
         const {name, password, uid, gender, phoneNum, hostel_name} = req.body;
-        const isValidated = userAdd_Auth(username, name, password, gender, email, phoneNum, hostel_name, uid);
+        const isValidated = userAdd_Auth(name, password, gender, phoneNum, hostel_name, uid);
     
         if(!isValidated.success){
             throw new ApiError(400, `Fill It with Right Formats -> ${isValidated.data}`);
