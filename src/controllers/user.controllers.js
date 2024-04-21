@@ -8,8 +8,7 @@ import jwt from "jsonwebtoken";
 import { mailUser } from "../util/nodeMailer.js";
 import { Product } from "../models/product.models.js";
 import mongoose from "mongoose";
-
-function generateRandomNumber() {
+function getRandomInt() {
     return Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
 }
 
@@ -68,7 +67,7 @@ const registerUser = asyncHandler(
 
         const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-        const verificationCode = getRandomInt(100000);
+        const verificationCode = getRandomInt();
 
         const userObj = await User.create(
             {
@@ -159,7 +158,7 @@ const loginUser = asyncHandler(
         if(!passCheck) throw new ApiError(401, "Invalid Credentials");
 
         if(!user.isVerified){
-            const verificationCode = getRandomInt(100000);
+            const verificationCode = getRandomInt();
             user.verificationCode = verificationCode;
             user.save({validateBeforeSave: false}); 
             
@@ -401,7 +400,7 @@ const requestOTP = asyncHandler(
 
         if(user.isVerified) throw new ApiError(401, "User Already Verified");
 
-        const verificationCode = getRandomInt(10000);
+        const verificationCode = getRandomInt();
         
         user.verificationCode = verificationCode;
 
@@ -448,7 +447,7 @@ const forgetPassword = asyncHandler(
                 }
             ).select("-password -refreshToken");
             
-            const verificationCode = getRandomInt(100000);
+            const verificationCode = getRandomInt();
             user.verificationCode = verificationCode;
             user.save({validateBeforeSave: true});
     
