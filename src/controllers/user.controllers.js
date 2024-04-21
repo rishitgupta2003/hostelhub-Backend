@@ -117,7 +117,7 @@ const registerUser = asyncHandler(
             <p style="font-size: 16px;">OTP: ${verificationCode}</p>
             </div>`;
             
-        mailUser(email, "Verify Your Account", message);
+        mailUser(createdUser.email, "Verify Your Account", message);
 
         res.status(200).json(
             new ApiResponse(
