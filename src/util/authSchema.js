@@ -9,7 +9,7 @@ const userAdd_Auth = (Name, Password, Gender, PhoneNum, Hostel, UID) => {
     // const email = zod.string().email().refine((val) => val.endsWith('@cuchd.in') || val.endsWith('@cumail.in'));
 
     
-    const phoneNumber = zod.string().max(10);
+    const phoneNumber = zod.string().max(10).min(10);
     const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE"]);
     const uid = zod.string();
 

@@ -135,8 +135,31 @@ const deleteCloudinaryResource = async (cloudPath) => {
     }
 }
 
+const updatePhone = asyncHandler(
+    async (req, res) => {
+        const user = await User.findById(req.user?._id).select("-refreshToken -updatedAt -createdAt -password -avatar -hostel_name -email -gender -uid -name -username");
+            if(!user) throw new ApiError(401, "Unauthorised Access");
+    
+            try{
+                const { newPhone } = req.body;
+                const phoneNumber = zod.string().max(10).min(10);
+                if(!phoneNumber.safeParse(newPhone).success) throw new ApiError(401, "Number must be of 10 Digits");
+                user.phoneNum = newPhone
+                user.save({validateBeforeSave: false});
+                return res.status(200)
+                    .json(
+                        new ApiResponse(200, {"New Phone" : newPhone}, "Phone Updated Successfully")
+                    );
+    
+            }catch(error){
+                throw new ApiError(500, `Server Error ->  ${error.message}`);
+            }
+    }
+)
+
 export {
     updatePassword,
     updateHostel,
-    updateAvatar
+    updateAvatar,
+    updatePhone
 }

@@ -8,15 +8,10 @@ const router = Router();
 
 router.route("/addProducts").post(verifyJWT, 
     upload.fields(
-        [
-            {
-                name: "coverImg",
-                maxCount: 1
-            },
-            
+        [        
             {
                 name: "productImg",
-                maxCount: 4
+                maxCount: 5
             }
         ]
     ), 

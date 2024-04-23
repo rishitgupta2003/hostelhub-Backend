@@ -28,11 +28,6 @@ const addProduct = asyncHandler(
 
             let coverImgLink;
 
-            if (req.files && req.files.coverImg && req.files.coverImg.length > 0) {
-                const avatarLocalPath = req.files.coverImg[0].path;
-                coverImgLink = await uploadOnCloudinary(avatarLocalPath);
-            }
-
             let arr = [];
 
             if (
@@ -58,11 +53,12 @@ const addProduct = asyncHandler(
                 arr = uploadedUrls.filter((url) => url !== null);
             }
             
-            arr.push(coverImgLink?.url);
+
+            coverImgLink = arr[0];           
 
             const productObject = {
                 name: productName,
-                coverImg: coverImgLink?.url,
+                coverImg: coverImgLink,
                 productImgs: arr,
                 description: description,
                 price: price,
