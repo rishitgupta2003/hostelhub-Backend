@@ -4,6 +4,7 @@ import { ApiError } from "../util/ApiError.js";
 import { ApiResponse } from "../util/ApiResponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { v2 as cloudinary } from "cloudinary";
+import { soldOverlay } from "../util/cloudinary.js";
 
 const updateProductName = asyncHandler(
     async (req, res) => {
@@ -93,6 +94,7 @@ const soldState = asyncHandler(
             }));
 
             product.productImgs = [];
+            product.coverImg = soldOverlay(product.coverImg);
 
             await product.save({validateBeforeSave : false});
 

@@ -26,4 +26,40 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-export { uploadOnCloudinary };
+
+
+const soldOverlay = async ( soldStatus, coverImgPath ) => {
+    try{
+        if(soldStatus){
+            const image = extractImageNameFromURL(coverImgPath);
+            const img = cloudinary.url(image,
+                {
+                    transformation: [
+                        {
+                            width: 600,
+                            height: 600,
+                            crop: 'fill',
+                            gravity: 'auto'
+                        },
+                        {
+                            overlay: 'sold'
+                        }
+                    ]
+                }
+            )
+            return img;
+        }
+    }catch(error){
+        console.log(error);
+        return coverImgPath;
+    }
+}
+
+function extractImageNameFromURL(imageURL) {
+    const parts = imageURL.split('/');
+    const filenameWithExtension = parts[parts.length - 1];
+    const filenameWithoutExtension = filenameWithExtension.split('.')[0];
+    return filenameWithoutExtension;
+}
+
+export { uploadOnCloudinary, soldOverlay };

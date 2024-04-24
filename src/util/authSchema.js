@@ -10,7 +10,7 @@ const userAdd_Auth = (Name, Password, Gender, PhoneNum, Hostel, UID) => {
 
     
     const phoneNumber = zod.string().max(10).min(10);
-    const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE"]);
+    const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE", "PG/Flat", "LC", "Others"]);
     const uid = zod.string();
 
     const nameParse = name.safeParse(Name).success;

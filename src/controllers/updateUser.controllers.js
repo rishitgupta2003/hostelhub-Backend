@@ -46,7 +46,7 @@ const updateHostel = asyncHandler(
 
         try{
             const { newHostel } = req.body;
-            const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE"]);
+            const hostel = zod.enum(["NekChand/Zakir", "SUKHNA", "TAGORE", "PG/Flat", "LC", "Others"]);
 
             if(!hostel.safeParse(newHostel).success) throw new ApiError(401, "Hostel Name must be from the List");
             

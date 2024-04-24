@@ -52,7 +52,7 @@ const userSchema = new Schema(
         },
         hostel_name: {
             type: String,
-            enum: ["NekChand/Zakir", "SUKHNA", "TAGORE"],
+            enum: ["NekChand/Zakir", "SUKHNA", "TAGORE", "PG/Flat", "LC", "Others"],
             required: true
         },
         isVerified: {
