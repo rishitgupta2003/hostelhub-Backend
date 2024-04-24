@@ -47,6 +47,7 @@ const soldOverlay = async ( soldStatus, coverImgPath ) => {
                     ]
                 }
             )
+            console.log(img);
             return img;
         }
     }catch(error){

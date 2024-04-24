@@ -94,7 +94,8 @@ const soldState = asyncHandler(
             }));
 
             product.productImgs = [];
-            product.coverImg = soldOverlay(product.coverImg);
+            const newCoverImg = await soldOverlay(true, product.coverImg);
+            product.coverImg = newCoverImg;
 
             await product.save({validateBeforeSave : false});
 
