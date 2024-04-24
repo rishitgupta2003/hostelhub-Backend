@@ -54,7 +54,8 @@ const addProduct = asyncHandler(
             }
             
 
-            coverImgLink = arr[0];           
+            coverImgLink = arr[0];
+            arr.splice(0,1);           
 
             const productObject = {
                 name: productName,
