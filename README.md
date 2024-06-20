@@ -1,6 +1,6 @@
 # Hostel Hub Backend
 
-Hostel Hub Backend is the backend server for an online buying and selling website dedicated to students residing in hostels. It provides RESTful APIs to manage user authentication, product listings and Chat.
+Hostel Hub Backend is the backend server for an online buying and selling website dedicated to students residing in hostels. It provides RESTful APIs to manage user authentication and product listings.
 
 ## Features
 
